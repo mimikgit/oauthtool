@@ -276,6 +276,10 @@ async-exit-hook@^2.0.1:
   version "2.0.1"
   resolved "http://lib.mimik360.com:4873/async-exit-hook/-/async-exit-hook-2.0.1.tgz#8bd8b024b0ec9b1c01cccb9af9db29bd717dfaf3"
 
+async-limiter@~1.0.0:
+  version "1.0.0"
+  resolved "http://lib.mimik360.com:4873/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
+
 async@^2.1.2:
   version "2.6.0"
   resolved "http://lib.mimik360.com:4873/async/-/async-2.6.0.tgz#61a29abb6fcc026fea77e56d1c6ec53a795951f4"
@@ -4218,6 +4222,10 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "http://lib.mimik360.com:4873/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
+simple-jsonrpc-js@^0.0.10:
+  version "0.0.10"
+  resolved "http://lib.mimik360.com:4873/simple-jsonrpc-js/-/simple-jsonrpc-js-0.0.10.tgz#0f0852df0dfdafd57cc745c63c0b72bdb196e305"
+
 single-line-log@^1.1.2:
   version "1.1.2"
   resolved "http://lib.mimik360.com:4873/single-line-log/-/single-line-log-1.1.2.tgz#c2f83f273a3e1a16edb0995661da0ed5ef033364"
@@ -4899,6 +4907,12 @@ write-file-atomic@^2.0.0:
     graceful-fs "^4.1.11"
     imurmurhash "^0.1.4"
     signal-exit "^3.0.2"
+
+ws@^6.0.0:
+  version "6.0.0"
+  resolved "http://lib.mimik360.com:4873/ws/-/ws-6.0.0.tgz#eaa494aded00ac4289d455bac8d84c7c651cef35"
+  dependencies:
+    async-limiter "~1.0.0"
 
 xdg-basedir@^3.0.0:
   version "3.0.0"
