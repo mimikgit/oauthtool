@@ -16,6 +16,7 @@ let mainWindow;
 let authWindow;
 let devClientId;
 let devRidirectUri;
+let devEdgeIdToken;
 
 
 
@@ -96,7 +97,7 @@ const setApplicationMenu = () => {
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1000,
-    height: 600,
+    height: 800,
     webPreferences: {
       nativeWindowOpen: true,
     }
@@ -111,6 +112,7 @@ function createMainWindow() {
 
     devClientId = query.client_id;
     devRidirectUri = query.redirect_uri;
+    devEdgeIdToken = query.edge_id_token;
     
     // ejse.data('clientId', devClientId);
 
@@ -167,6 +169,34 @@ function createMainWindow() {
         
                 // mainWindow.loadURL(loginUrl);
 
+                const optionsTokenExchange = {
+                  method: 'POST',
+                  uri: `${OAUTH_DOMAIN}/token`,
+                  form: {
+                    grant_type: 'exchange_edge_token',
+                    token: token.access_token,
+                    redirect_uri: devRidirectUri,
+                    code_verifier: 'SqRg3wQWke2YSwMydkdilNHURfmmnt-Vlbvf8s2Ri58',
+                    client_id: devClientId,
+                  },
+                };
+  
+                rp(optionsTokenExchange)
+                  .then((tokenBody) => {
+                    const userToken = JSON.parse(tokenBody).access_token;
+                    console.log(`accessToken: ${tokenBody} `);
+                    const data = {};
+                    data.userToken = userToken;
+                    data.edgeToken = token.access_token;
+                    // data.idToken = token.id_token;
+                    data.scope = token.scope;
+                    console.log(data);
+                    
+                  })
+                  .catch((error) => {
+                    console.error(JSON.stringify(error));
+                  });
+
                 if (token.id_token) {
                   token.id_token = null;
                 }
@@ -204,8 +234,11 @@ function createMainWindow() {
         SCOPES.map(u => encodeURIComponent(u)).join('+');
 
       const redirect = encodeURIComponent(devRidirectUri);
-      const url = `${OAUTH_DOMAIN}/auth?redirect_uri=${redirect}&scope=${oauthScope}&client_id=${devClientId}&state=xyz&response_type=code&code_challenge=czD7gtNh2SowYqxpN5OSf5a6wIiszEZ9AvRHGvwIJS4&code_challenge_method=S256`;
+      let url = `${OAUTH_DOMAIN}/auth?redirect_uri=${redirect}&scope=${oauthScope}&client_id=${devClientId}&state=xyz&response_type=code&code_challenge=czD7gtNh2SowYqxpN5OSf5a6wIiszEZ9AvRHGvwIJS4&code_challenge_method=S256`;
 
+      if (query.reset) {
+        url += `&edge_id_token=${devEdgeIdToken}`;
+      }
       // mainWindow.loadURL(url);
 
       authWindow = new BrowserWindow({

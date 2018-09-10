@@ -63,104 +63,180 @@
 /******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ (function(module, exports) {
 
 module.exports = require("electron");
 
 /***/ }),
-
-/***/ 10:
+/* 1 */,
+/* 2 */,
+/* 3 */,
+/* 4 */,
+/* 5 */,
+/* 6 */,
+/* 7 */,
+/* 8 */,
+/* 9 */,
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_electron__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ws__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ws___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ws__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js__);
+
+
 
 
 const app = document.querySelector('#app');
 
 function showMessage(msg) {
-    document.querySelector('.message').style.display = 'flex';
-    document.querySelector('.message').innerText = msg;
+  document.querySelector('.message').style.display = 'flex';
+  document.querySelector('.message').innerText = msg;
 }
 
 function init() {
-    app.style.display = 'block';
+  app.style.display = 'block';
 }
 
 init();
 
 document.querySelector('#btnRedirect').onclick = () => {
-    const clientId = document.querySelector('#clientId');
-    const redirectUri = document.querySelector('#redirectUri');
-    console.log(`${clientId.value} ### ${redirectUri.value}`);
+  const clientId = document.querySelector('#clientId');
+  const redirectUri = document.querySelector('#redirectUri');
+  console.log(`${clientId.value} ### ${redirectUri.value}`);
 
-    const url = "openid://callback?protocol=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
-    window.location.assign(url);
+  const url = "openid://callback?protocol=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
+  window.location.assign(url);
 };
 
 document.querySelector('#btnEdgeToken').onclick = () => {
-    const clientId = document.querySelector('#clientId');
-    const redirectUri = document.querySelector('#redirectUri');
-    console.log(`${clientId.value} ### ${redirectUri.value}`);
+  const clientId = document.querySelector('#clientId');
+  const redirectUri = document.querySelector('#redirectUri');
+  console.log(`${clientId.value} ### ${redirectUri.value}`);
 
-    const url = "openid://callback?client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
-    window.location.assign(url);
+  const url = "openid://callback?client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
+  window.location.assign(url);
+};
+
+document.querySelector('#btnDeviceConnect').onclick = () => {
+  showMessage('');
+  const EDGE_SDK_PORT = 8083; // Currently the edge SDK default port is 8083
+  const ipAddress = document.querySelector('#ipAddress');
+  const localEDGEWSURL = `ws://${ipAddress.value}:${EDGE_SDK_PORT}/ws/edge-service-api/v1`; // "ws://127.0.0.1:8083/ws/edge-service-api/v1"
+
+  const ws = new __WEBPACK_IMPORTED_MODULE_1_ws___default.a(localEDGEWSURL);
+  const jrpc = new __WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js___default.a();
+  ws.jrpc = jrpc;
+  ws.jrpc.toStream = _msg => {
+    ws.send(_msg);
+  };
+
+  ws.on('open', () => {
+    // console.log('getEdgeIdToken socket open');
+    jrpc.call('getEdgeIdToken', null).then(result => {
+      console.log('getEdgeIdToken result: ', result);
+      // cb(result);
+      document.querySelector('#idToken').value = result.id_token;
+      document.querySelector('#btnResetEdgeToken').disabled = false;
+      setImmediate(() => {
+        ws.onmessage = undefined;
+        ws.close();
+      });
+    }).catch(e => {
+      console.log('catch error:', e);
+      setImmediate(() => {
+        ws.onmessage = undefined;
+        ws.close();
+      });
+
+      showMessage('Error connecting: ' + e);
+    });
+  });
+
+  ws.on('message', msgData => {
+    // const msg = JSON.parse(msgData);
+    // console.log('getMe socket message: ', msg);
+    jrpc.messageHandler(msgData);
+  });
+
+  ws.on('error', err => {
+    console.log('edge ws onerror', err);
+
+    showMessage('Edge error: ' + err);
+    //   cb(wsError(err));
+  });
+
+  ws.on('close', () => {
+    // console.log('edge ws close');
+  });
 };
 
 document.querySelector('#btnResetEdgeToken').onclick = () => {
-    const clientId = document.querySelector('#clientId');
-    const redirectUri = document.querySelector('#redirectUri');
-    console.log(`${clientId.value} ### ${redirectUri.value}`);
+  const clientId = document.querySelector('#clientId');
+  const redirectUri = document.querySelector('#redirectUri');
+  const idToken = document.querySelector('#idToken');
+  console.log(`${clientId.value} ### ${redirectUri.value}`);
 
-    const url = "openid://callback?reset=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
-    window.location.assign(url);
+  const url = "openid://callback?reset=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + idToken.value;
+  window.location.assign(url);
 };
 
 __WEBPACK_IMPORTED_MODULE_0_electron__["ipcRenderer"].on('protocol-reply', (event, arg) => {
-    console.log('protocol-reply', arg);
-    showMessage('');
-    if (arg.status === true) {
-        if (arg.data) {
-            document.querySelector('#btnRedirect').disabled = true;
-            document.querySelector('#btnEdgeToken').disabled = false;
-            document.querySelector('#btnResetEdgeToken').disabled = false;
-        }
-    } else {
-        const msg = `${arg.message.error} - ${arg.message.error_description}`;
-        showMessage(msg);
+  console.log('protocol-reply', arg);
+  showMessage('');
+  if (arg.status === true) {
+    if (arg.data) {
+      document.querySelector('#btnRedirect').disabled = true;
+      document.querySelector('#btnEdgeToken').disabled = false;
     }
+  } else {
+    const msg = `${arg.message.error} - ${arg.message.error_description}`;
+    showMessage(msg);
+  }
 });
 
 __WEBPACK_IMPORTED_MODULE_0_electron__["ipcRenderer"].on('oauth-login-reply', (event, arg) => {
-    console.log('oauth-login-reply', arg);
-    document.querySelector('#btnRedirect').disabled = true;
-    document.querySelector('#btnEdgeToken').disabled = false;
-    document.querySelector('#btnResetEdgeToken').disabled = false;
-    showMessage('');
-    if (arg.devClientId) {
-        document.querySelector('#clientId').value = arg.devClientId;
+  console.log('oauth-login-reply', arg);
+  document.querySelector('#btnRedirect').disabled = true;
+  document.querySelector('#btnEdgeToken').disabled = false;
+  showMessage('');
+  if (arg.devClientId) {
+    document.querySelector('#clientId').value = arg.devClientId;
+  }
+  if (arg.devRidirectUri) {
+    document.querySelector('#redirectUri').value = arg.devRidirectUri;
+  }
+  if (arg.status === true) {
+    if (arg.token) {
+      console.log(`Token: ${JSON.stringify(arg.token)}`);
+      const accessToken = document.querySelector('#accessToken');
+      accessToken.innerText = JSON.stringify(arg.token);
     }
-    if (arg.devRidirectUri) {
-        document.querySelector('#redirectUri').value = arg.devRidirectUri;
-    }
-    if (arg.status === true) {
-        if (arg.token) {
-            console.log(`Token: ${JSON.stringify(arg.token)}`);
-            const accessToken = document.querySelector('#accessToken');
-            accessToken.innerText = JSON.stringify(arg.token);
-        }
-    } else {
-        const msg = `${arg.message.error} - ${arg.message.error_description}`;
-        showMessage(msg);
-    }
+  } else {
+    const msg = `${arg.message.error} - ${arg.message.error_description}`;
+    showMessage(msg);
+  }
 });
 
-/***/ })
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
 
-/******/ });
+module.exports = require("ws");
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+module.exports = require("simple-jsonrpc-js");
+
+/***/ })
+/******/ ]);
 //# sourceMappingURL=app.js.map
