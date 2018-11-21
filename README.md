@@ -8,10 +8,9 @@ The use of the [yarn](https://yarnpkg.com/) package manager is **strongly** reco
 ```bash
 # Install dependencies
 yarn
-```
-```bash
+
 # run application in development mode
 yarn dev
 
 # `yarn compile` & create build with electron-builder
-yarn buil
+yarn build
