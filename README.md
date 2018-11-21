@@ -14,3 +14,6 @@ yarn dev
 
 # `yarn compile` & create build with electron-builder
 yarn build
+```
+
+The executable file of OAuthTool is located under **dist** folder
