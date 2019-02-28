@@ -1,7 +1,4 @@
 import { app, BrowserWindow, Menu, session, protocol, ipcRenderer, } from 'electron';
-import * as path from 'path';
-import { format as formatUrl } from 'url';
-import * as URL from 'url';
 import crypto from 'crypto';
 import queryString from 'query-string';
 import rp from 'request-promise';
@@ -17,10 +14,6 @@ let authWindow;
 let devClientId;
 let devRidirectUri;
 let devEdgeIdToken;
-
-
-
-////////////////////////////////////////////////
 
 const OAUTH_DOMAIN = 'https://mid.mimik360.com';
 const SCOPES = [
@@ -47,8 +40,6 @@ const RESET_SCOPES = [
         'openid',
         'edge:account:unassociate',
 ];
-
-///////////////////////////////////////////////
 
 function base64URLEncode(str) {
   return str.toString('base64')
@@ -105,29 +96,32 @@ function createMainWindow() {
 
   protocol.registerHttpProtocol('openid', (request, callback) => {
     const _url = request.url.substr('openid://'.length);
-    const query = queryString.parse(_url.replace('callback?', ''));
-
-    console.log(`QUERY: ${JSON.stringify(query)}`);
-    
+    const query = queryString.parse(_url.replace('callback?', ''));    
 
     devClientId = query.client_id;
     devRidirectUri = query.redirect_uri;
     devEdgeIdToken = query.edge_id_token;
-    
-    // ejse.data('clientId', devClientId);
 
+    console.log({
+      devClientId: devClientId,
+      devRidirectUri: devRidirectUri,
+      devEdgeIdToken: devEdgeIdToken
+    })
+    
     if (query.protocol) {
       const redirectProtocol = getProtocol(devRidirectUri);
-      console.log(`redirectProtocol ${redirectProtocol}`);
       
       if (redirectProtocol) {
         protocol.registerHttpProtocol(redirectProtocol, (request, callback) => {
           const url = request.url.substr(12);
-          // const query = queryString.parse(url.replace('authorization_code?', ''));
           const query = queryString.parseUrl(request.url);
-      
-          console.log(`url: ${url} ----- ${JSON.stringify(query)}`);
-          console.log(`code: ${query.query.code}, state: ${query.query.state}`);
+
+          console.log({
+            url: url,
+            query: JSON.stringify(query),
+            code: query.query.code,
+            state: query.query.state
+          })
 
           authWindow.removeAllListeners('done');
           setImmediate(() => {
@@ -135,11 +129,7 @@ function createMainWindow() {
           });
       
           if (!query.query.code) {
-      
-            // const loginUrl = `file://${__dirname}/app.html`;
-      
-            // mainWindow.loadURL(loginUrl);
-      
+                  
             setTimeout(() => {
               mainWindow.webContents.send('oauth-login-reply', { status: false, message: query.query, devClientId, devRidirectUri });
             }, 150);
@@ -164,11 +154,7 @@ function createMainWindow() {
                 session.defaultSession.cookies.get({}, (error, cookies) => {
                   console.log(error, cookies)
                 });
-        
-                // const loginUrl = `file://${__dirname}/app.html`;
-        
-                // mainWindow.loadURL(loginUrl);
-
+                
                 const optionsTokenExchange = {
                   method: 'POST',
                   uri: `${OAUTH_DOMAIN}/token`,
@@ -188,10 +174,7 @@ function createMainWindow() {
                     const data = {};
                     data.userToken = userToken;
                     data.edgeToken = token.access_token;
-                    // data.idToken = token.id_token;
-                    data.scope = token.scope;
-                    console.log(data);
-                    
+                    data.scope = token.scope;                    
                   })
                   .catch((error) => {
                     console.error(JSON.stringify(error));
@@ -206,12 +189,7 @@ function createMainWindow() {
                 }, 150);
               })
               .catch((err) => {
-                console.log(`${err}`);
-                // callback({path: path.normalize(`${__dirname}/error.html`)});
-                // const loginUrl = `file://${__dirname}/app.html`;
-        
-                // mainWindow.loadURL(loginUrl);
-        
+                console.log(`${err}`);                
                 setTimeout(() => {
                   mainWindow.webContents.send('oauth-login-reply', { status: false, message: err, devClientId, devRidirectUri });
                 }, 150);
@@ -234,12 +212,7 @@ function createMainWindow() {
         SCOPES.map(u => encodeURIComponent(u)).join('+');
 
       const redirect = encodeURIComponent(devRidirectUri);
-      let url = `${OAUTH_DOMAIN}/auth?redirect_uri=${redirect}&scope=${oauthScope}&client_id=${devClientId}&state=xyz&response_type=code&code_challenge=czD7gtNh2SowYqxpN5OSf5a6wIiszEZ9AvRHGvwIJS4&code_challenge_method=S256`;
-
-      if (query.reset) {
-        url += `&edge_id_token=${devEdgeIdToken}`;
-      }
-      // mainWindow.loadURL(url);
+      let url = `${OAUTH_DOMAIN}/auth?redirect_uri=${redirect}&scope=${oauthScope}&client_id=${devClientId}&state=xyz&response_type=code&code_challenge=czD7gtNh2SowYqxpN5OSf5a6wIiszEZ9AvRHGvwIJS4&code_challenge_method=S256&edge_id_token=${devEdgeIdToken}`;
 
       authWindow = new BrowserWindow({
         parent: mainWindow,
@@ -259,7 +232,7 @@ function createMainWindow() {
     }
   });
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   if (env.name === 'development') {
     mainWindow.openDevTools();

@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -77,18 +77,16 @@ module.exports = require("electron");
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */,
-/* 9 */,
-/* 10 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_electron__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ws__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ws__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ws___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ws__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_simple_jsonrpc_js__);
 
 
@@ -110,22 +108,33 @@ init();
 document.querySelector('#btnRedirect').onclick = () => {
   const clientId = document.querySelector('#clientId');
   const redirectUri = document.querySelector('#redirectUri');
-  console.log(`${clientId.value} ### ${redirectUri.value}`);
+  const edgeIdToken = document.querySelector('#edgeIdToken');
+  console.log({
+    clientId: clientId.value,
+    redirectUri: redirectUri.value,
+    edgeIdToken: edgeIdToken.value
+  });
 
-  const url = "openid://callback?protocol=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
+  const url = "openid://callback?protocol=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + edgeIdToken.value;
   window.location.assign(url);
 };
 
 document.querySelector('#btnEdgeToken').onclick = () => {
   const clientId = document.querySelector('#clientId');
   const redirectUri = document.querySelector('#redirectUri');
-  console.log(`${clientId.value} ### ${redirectUri.value}`);
+  const edgeIdToken = document.querySelector('#edgeIdToken');
+  console.log({
+    clientId: clientId.value,
+    redirectUri: redirectUri.value,
+    edgeIdToken: edgeIdToken.value
+  });
 
-  const url = "openid://callback?client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
+  const url = "openid://callback?client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + edgeIdToken.value;
   window.location.assign(url);
 };
 
 document.querySelector('#btnDeviceConnect').onclick = () => {
+
   showMessage('');
   const EDGE_SDK_PORT = 8083; // Currently the edge SDK default port is 8083
   const ipAddress = document.querySelector('#ipAddress');
@@ -141,10 +150,9 @@ document.querySelector('#btnDeviceConnect').onclick = () => {
   ws.on('open', () => {
     // console.log('getEdgeIdToken socket open');
     jrpc.call('getEdgeIdToken', null).then(result => {
-      console.log('getEdgeIdToken result: ', result);
-      // cb(result);
-      document.querySelector('#idToken').value = result.id_token;
+      document.querySelector('#edgeIdToken').value = result.id_token;
       document.querySelector('#btnResetEdgeToken').disabled = false;
+      document.querySelector('#btnRedirect').disabled = false;
       setImmediate(() => {
         ws.onmessage = undefined;
         ws.close();
@@ -167,7 +175,7 @@ document.querySelector('#btnDeviceConnect').onclick = () => {
   });
 
   ws.on('error', err => {
-    console.log('edge ws onerror', err);
+    console.log('edge ws error:', err);
 
     showMessage('Edge error: ' + err);
     //   cb(wsError(err));
@@ -181,10 +189,9 @@ document.querySelector('#btnDeviceConnect').onclick = () => {
 document.querySelector('#btnResetEdgeToken').onclick = () => {
   const clientId = document.querySelector('#clientId');
   const redirectUri = document.querySelector('#redirectUri');
-  const idToken = document.querySelector('#idToken');
-  console.log(`${clientId.value} ### ${redirectUri.value}`);
+  const edgeIdToken = document.querySelector('#edgeIdToken');
 
-  const url = "openid://callback?reset=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + idToken.value;
+  const url = "openid://callback?reset=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + edgeIdToken.value;
   window.location.assign(url);
 };
 
@@ -226,13 +233,13 @@ __WEBPACK_IMPORTED_MODULE_0_electron__["ipcRenderer"].on('oauth-login-reply', (e
 });
 
 /***/ }),
-/* 11 */
+/* 9 */
 /***/ (function(module, exports) {
 
 module.exports = require("ws");
 
 /***/ }),
-/* 12 */
+/* 10 */
 /***/ (function(module, exports) {
 
 module.exports = require("simple-jsonrpc-js");

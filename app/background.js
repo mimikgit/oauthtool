@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -71,35 +71,22 @@ module.exports = require("electron");
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-module.exports = require("url");
-
-/***/ }),
-/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_electron__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_path__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_path___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_path__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_url__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_url___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_url__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_crypto__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_crypto___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_crypto__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_query_string__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_query_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_query_string__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_request_promise__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_request_promise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_request_promise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_env__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_env___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_env__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__menu_dev_menu_template__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__menu_edit_menu_template__ = __webpack_require__(9);
-
-
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crypto__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_crypto___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_crypto__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_query_string__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_query_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_query_string__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_request_promise__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_request_promise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_request_promise__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_env__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_env___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_env__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__menu_dev_menu_template__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__menu_edit_menu_template__ = __webpack_require__(7);
 
 
 
@@ -116,8 +103,6 @@ let authWindow;
 let devClientId;
 let devRidirectUri;
 let devEdgeIdToken;
-
-////////////////////////////////////////////////
 
 const OAUTH_DOMAIN = 'https://mid.mimik360.com';
 const SCOPES = [
@@ -139,16 +124,14 @@ const SCOPES = [
 
 const RESET_SCOPES = ['openid', 'edge:account:unassociate'];
 
-///////////////////////////////////////////////
-
 function base64URLEncode(str) {
   return str.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-const verifier = base64URLEncode(__WEBPACK_IMPORTED_MODULE_3_crypto___default.a.randomBytes(32));
+const verifier = base64URLEncode(__WEBPACK_IMPORTED_MODULE_1_crypto___default.a.randomBytes(32));
 
 function sha256(buffer) {
-  return __WEBPACK_IMPORTED_MODULE_3_crypto___default.a.createHash('sha256').update(buffer).digest();
+  return __WEBPACK_IMPORTED_MODULE_1_crypto___default.a.createHash('sha256').update(buffer).digest();
 }
 
 function getProtocol(url) {
@@ -175,9 +158,9 @@ function getProtocol(url) {
 }
 
 const setApplicationMenu = () => {
-  const menus = [__WEBPACK_IMPORTED_MODULE_8__menu_edit_menu_template__["a" /* editMenuTemplate */]];
-  if (__WEBPACK_IMPORTED_MODULE_6_env___default.a.name !== 'production') {
-    menus.push(__WEBPACK_IMPORTED_MODULE_7__menu_dev_menu_template__["a" /* devMenuTemplate */]);
+  const menus = [__WEBPACK_IMPORTED_MODULE_6__menu_edit_menu_template__["a" /* editMenuTemplate */]];
+  if (__WEBPACK_IMPORTED_MODULE_4_env___default.a.name !== 'production') {
+    menus.push(__WEBPACK_IMPORTED_MODULE_5__menu_dev_menu_template__["a" /* devMenuTemplate */]);
   }
   __WEBPACK_IMPORTED_MODULE_0_electron__["Menu"].setApplicationMenu(__WEBPACK_IMPORTED_MODULE_0_electron__["Menu"].buildFromTemplate(menus));
 };
@@ -193,28 +176,32 @@ function createMainWindow() {
 
   __WEBPACK_IMPORTED_MODULE_0_electron__["protocol"].registerHttpProtocol('openid', (request, callback) => {
     const _url = request.url.substr('openid://'.length);
-    const query = __WEBPACK_IMPORTED_MODULE_4_query_string___default.a.parse(_url.replace('callback?', ''));
-
-    console.log(`QUERY: ${JSON.stringify(query)}`);
+    const query = __WEBPACK_IMPORTED_MODULE_2_query_string___default.a.parse(_url.replace('callback?', ''));
 
     devClientId = query.client_id;
     devRidirectUri = query.redirect_uri;
     devEdgeIdToken = query.edge_id_token;
 
-    // ejse.data('clientId', devClientId);
+    console.log({
+      devClientId: devClientId,
+      devRidirectUri: devRidirectUri,
+      devEdgeIdToken: devEdgeIdToken
+    });
 
     if (query.protocol) {
       const redirectProtocol = getProtocol(devRidirectUri);
-      console.log(`redirectProtocol ${redirectProtocol}`);
 
       if (redirectProtocol) {
         __WEBPACK_IMPORTED_MODULE_0_electron__["protocol"].registerHttpProtocol(redirectProtocol, (request, callback) => {
           const url = request.url.substr(12);
-          // const query = queryString.parse(url.replace('authorization_code?', ''));
-          const query = __WEBPACK_IMPORTED_MODULE_4_query_string___default.a.parseUrl(request.url);
+          const query = __WEBPACK_IMPORTED_MODULE_2_query_string___default.a.parseUrl(request.url);
 
-          console.log(`url: ${url} ----- ${JSON.stringify(query)}`);
-          console.log(`code: ${query.query.code}, state: ${query.query.state}`);
+          console.log({
+            url: url,
+            query: JSON.stringify(query),
+            code: query.query.code,
+            state: query.query.state
+          });
 
           authWindow.removeAllListeners('done');
           setImmediate(() => {
@@ -222,10 +209,6 @@ function createMainWindow() {
           });
 
           if (!query.query.code) {
-
-            // const loginUrl = `file://${__dirname}/app.html`;
-
-            // mainWindow.loadURL(loginUrl);
 
             setTimeout(() => {
               mainWindow.webContents.send('oauth-login-reply', { status: false, message: query.query, devClientId, devRidirectUri });
@@ -243,17 +226,13 @@ function createMainWindow() {
               }
             };
 
-            __WEBPACK_IMPORTED_MODULE_5_request_promise___default()(options).then(parsedBody => {
+            __WEBPACK_IMPORTED_MODULE_3_request_promise___default()(options).then(parsedBody => {
               const token = JSON.parse(parsedBody);
 
               console.log(`rp: ${JSON.stringify(token, null, 2)}`);
               __WEBPACK_IMPORTED_MODULE_0_electron__["session"].defaultSession.cookies.get({}, (error, cookies) => {
                 console.log(error, cookies);
               });
-
-              // const loginUrl = `file://${__dirname}/app.html`;
-
-              // mainWindow.loadURL(loginUrl);
 
               const optionsTokenExchange = {
                 method: 'POST',
@@ -267,15 +246,13 @@ function createMainWindow() {
                 }
               };
 
-              __WEBPACK_IMPORTED_MODULE_5_request_promise___default()(optionsTokenExchange).then(tokenBody => {
+              __WEBPACK_IMPORTED_MODULE_3_request_promise___default()(optionsTokenExchange).then(tokenBody => {
                 const userToken = JSON.parse(tokenBody).access_token;
                 console.log(`accessToken: ${tokenBody} `);
                 const data = {};
                 data.userToken = userToken;
                 data.edgeToken = token.access_token;
-                // data.idToken = token.id_token;
                 data.scope = token.scope;
-                console.log(data);
               }).catch(error => {
                 console.error(JSON.stringify(error));
               });
@@ -289,11 +266,6 @@ function createMainWindow() {
               }, 150);
             }).catch(err => {
               console.log(`${err}`);
-              // callback({path: path.normalize(`${__dirname}/error.html`)});
-              // const loginUrl = `file://${__dirname}/app.html`;
-
-              // mainWindow.loadURL(loginUrl);
-
               setTimeout(() => {
                 mainWindow.webContents.send('oauth-login-reply', { status: false, message: err, devClientId, devRidirectUri });
               }, 150);
@@ -313,12 +285,7 @@ function createMainWindow() {
       const oauthScope = query.reset ? RESET_SCOPES.map(u => encodeURIComponent(u)).join('+') : SCOPES.map(u => encodeURIComponent(u)).join('+');
 
       const redirect = encodeURIComponent(devRidirectUri);
-      let url = `${OAUTH_DOMAIN}/auth?redirect_uri=${redirect}&scope=${oauthScope}&client_id=${devClientId}&state=xyz&response_type=code&code_challenge=czD7gtNh2SowYqxpN5OSf5a6wIiszEZ9AvRHGvwIJS4&code_challenge_method=S256`;
-
-      if (query.reset) {
-        url += `&edge_id_token=${devEdgeIdToken}`;
-      }
-      // mainWindow.loadURL(url);
+      let url = `${OAUTH_DOMAIN}/auth?redirect_uri=${redirect}&scope=${oauthScope}&client_id=${devClientId}&state=xyz&response_type=code&code_challenge=czD7gtNh2SowYqxpN5OSf5a6wIiszEZ9AvRHGvwIJS4&code_challenge_method=S256&edge_id_token=${devEdgeIdToken}`;
 
       authWindow = new __WEBPACK_IMPORTED_MODULE_0_electron__["BrowserWindow"]({
         parent: mainWindow,
@@ -331,16 +298,16 @@ function createMainWindow() {
       });
 
       authWindow.loadURL(url);
-      if (__WEBPACK_IMPORTED_MODULE_6_env___default.a.name === 'development') {
+      if (__WEBPACK_IMPORTED_MODULE_4_env___default.a.name === 'development') {
         authWindow.openDevTools();
       }
       authWindow.show();
     }
   });
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-  if (__WEBPACK_IMPORTED_MODULE_6_env___default.a.name === 'development') {
+  if (__WEBPACK_IMPORTED_MODULE_4_env___default.a.name === 'development') {
     mainWindow.openDevTools();
   }
 
@@ -378,37 +345,31 @@ __WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('ready', () => {
 });
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-module.exports = require("path");
-
-/***/ }),
-/* 4 */
+/* 2 */
 /***/ (function(module, exports) {
 
 module.exports = require("crypto");
 
 /***/ }),
-/* 5 */
+/* 3 */
 /***/ (function(module, exports) {
 
 module.exports = require("query-string");
 
 /***/ }),
-/* 6 */
+/* 4 */
 /***/ (function(module, exports) {
 
 module.exports = require("request-promise");
 
 /***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, exports) {
 
-module.exports = {"name":"production","description":"Add here any environment specific stuff you like."}
+module.exports = {"name":"development","description":"Add here any environment specific stuff you like."}
 
 /***/ }),
-/* 8 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -442,7 +403,7 @@ const devMenuTemplate = {
 
 
 /***/ }),
-/* 9 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

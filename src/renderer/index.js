@@ -19,22 +19,33 @@ init();
 document.querySelector('#btnRedirect').onclick = () => {
     const clientId = document.querySelector('#clientId');
     const redirectUri = document.querySelector('#redirectUri');
-    console.log(`${clientId.value} ### ${redirectUri.value}`);
+    const edgeIdToken = document.querySelector('#edgeIdToken');
+    console.log({
+      clientId: clientId.value,
+      redirectUri: redirectUri.value,
+      edgeIdToken: edgeIdToken.value
+    });
 
-    const url = "openid://callback?protocol=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
+    const url = "openid://callback?protocol=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + edgeIdToken.value;
     window.location.assign(url);
 };
 
 document.querySelector('#btnEdgeToken').onclick = () => {
     const clientId = document.querySelector('#clientId');
     const redirectUri = document.querySelector('#redirectUri');
-    console.log(`${clientId.value} ### ${redirectUri.value}`);
+    const edgeIdToken = document.querySelector('#edgeIdToken');
+    console.log({
+      clientId: clientId.value,
+      redirectUri: redirectUri.value,
+      edgeIdToken: edgeIdToken.value
+    });
 
-    const url = "openid://callback?client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value;
+    const url = "openid://callback?client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + edgeIdToken.value;
     window.location.assign(url);
 };
 
 document.querySelector('#btnDeviceConnect').onclick = () => {
+
     showMessage('');
     const EDGE_SDK_PORT = 8083; // Currently the edge SDK default port is 8083
     const ipAddress = document.querySelector('#ipAddress');
@@ -50,10 +61,9 @@ document.querySelector('#btnDeviceConnect').onclick = () => {
     ws.on('open', () => {
       // console.log('getEdgeIdToken socket open');
       jrpc.call('getEdgeIdToken', null).then((result) => {
-        console.log('getEdgeIdToken result: ', result);
-        // cb(result);
-        document.querySelector('#idToken').value = result.id_token;
+        document.querySelector('#edgeIdToken').value = result.id_token;
         document.querySelector('#btnResetEdgeToken').disabled = false;
+        document.querySelector('#btnRedirect').disabled = false;
         setImmediate(() => {
           ws.onmessage = undefined;
           ws.close();
@@ -76,7 +86,7 @@ document.querySelector('#btnDeviceConnect').onclick = () => {
     });
   
     ws.on('error', (err) => {
-      console.log('edge ws onerror', err);
+      console.log('edge ws error:', err);
 
       showMessage('Edge error: ' + err);
     //   cb(wsError(err));
@@ -90,10 +100,9 @@ document.querySelector('#btnDeviceConnect').onclick = () => {
 document.querySelector('#btnResetEdgeToken').onclick = () => {
     const clientId = document.querySelector('#clientId');
     const redirectUri = document.querySelector('#redirectUri');
-    const idToken = document.querySelector('#idToken');
-    console.log(`${clientId.value} ### ${redirectUri.value}`);
+    const edgeIdToken = document.querySelector('#edgeIdToken');
 
-    const url = "openid://callback?reset=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + idToken.value;
+    const url = "openid://callback?reset=true&client_id=" + clientId.value + "&redirect_uri=" + redirectUri.value + "&edge_id_token=" + edgeIdToken.value;
     window.location.assign(url);
 };
   
@@ -106,7 +115,7 @@ ipcRenderer.on('protocol-reply', (event, arg) => {
         document.querySelector('#btnEdgeToken').disabled = false;
       }
     } else {
-        const msg = `${arg.message.error} - ${arg.message.error_description}`;   
+        const msg = `${arg.message.error} - ${arg.message.error_description}`;
         showMessage(msg);
     }
 });
